@@ -103,10 +103,10 @@ The accountability engine. Your digital conscience.
 
 ### Module 2 — Paisa Jugaad 💰
 
-Every morning at 8 AM IST, 45+ fresh opportunities are scraped and sent to your Telegram.
+Every morning at 8 AM IST, 45+ fresh opportunities are scraped and sent to your Telegram. All scraping is handled by four dedicated Cloudflare Workers (see [Scraper Details](#scraper-details) below).
 
 | Source                              | What it scrapes                                     |
-| ----------------------------------- | --------------------------------------------------- |
+| ------------------------------------ | --------------------------------------------------- |
 | Internshala                         | Paid internships (₹5,000+/month filter)             |
 | Reddit r/forhire                    | Freelance gigs with budgets                         |
 | Unstop + JSearch                    | Fresher placements from LinkedIn, Indeed, Glassdoor |
@@ -137,7 +137,7 @@ Bot responds with:
 Turn your daily grind into a game.
 
 | Action                  | XP Earned           |
-| ----------------------- | ------------------- |
+| ------------------------ | -------------------- |
 | GitHub commit           | 30 XP per commit    |
 | LeetCode problem solved | 50 XP per problem   |
 | Active streak           | 20 XP bonus per day |
@@ -145,7 +145,7 @@ Turn your daily grind into a game.
 **Rank System:**
 
 | XP Range      | Title                |
-| ------------- | -------------------- |
+| -------------- | --------------------- |
 | 0 – 99        | Naya Khiladi 🏏      |
 | 100 – 299     | Gabbar ka Chamcha 😈 |
 | 300 – 499     | Bumrah in Making 🎳  |
@@ -156,6 +156,21 @@ Turn your daily grind into a game.
 | 3,000+        | Don Hai Tu 🏆        |
 
 Every Sunday at 8 AM IST, a full leaderboard with Groq-generated savage commentary is sent to all users.
+
+---
+
+## Scraper Details
+
+All four scrapers are deployed independently as **Cloudflare Workers** and are called by n8n's HTTP Request nodes each morning at 8 AM IST. They're designed to fail gracefully — if a source is unreachable or its markup changes, each worker still returns a valid JSON payload (either with fewer results or a small default/fallback set) so the digest workflow never breaks.
+
+| File                        | Deployed as                     | Sources scraped                                          | Notes                                                                 |
+| ---------------------------- | -------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `internshala_scrapper.js`   | `jugaad-internshaala-scraper`   | Internshala (`/internships/stipend-5000/`)                 | Regex-parses server-rendered HTML for title, company, stipend, location, duration, and link |
+| `freelance_scrapper.js`     | `jugaad-freelance-scraper`      | Reddit r/forhire JSON API                                   | Filters for `[HIRING]` posts, extracts a budget from the title, and falls back to a default gig on error |
+| `placement_scrapper.js`     | `jugaad-placement-scraper`      | Unstop public opportunity API + JSearch (RapidAPI)          | Combines Unstop fresher jobs with two JSearch queries (India fresher roles + entry-level remote roles) |
+| `remote_scrapper.js`        | `jugaad-remote-scraper`         | RemoteOK API + JSearch (RapidAPI) + WeWorkRemotely RSS feed | Merges three sources into one list; RSS titles are split on `":"`/`" at "` to separate company from role |
+
+> `placement_scrapper.js` and `remote_scrapper.js` both call the **JSearch** API via RapidAPI, so each of those two worker scripts needs its own `RAPIDAPI_KEY` set (see [Environment Variables](#environment-variables)).
 
 ---
 
@@ -184,7 +199,7 @@ flowchart LR
 ## Technology Stack
 
 | Layer           | Technology                              |
-| --------------- | --------------------------------------- |
+| ---------------- | ---------------------------------------- |
 | Bot Interface   | Telegram Bot API                        |
 | Workflow Engine | n8n (self-hosted)                       |
 | LLM / AI        | Groq LLaMA 3.3 70B, OpenAI Whisper      |
@@ -203,7 +218,7 @@ flowchart LR
 ### Workflows
 
 | Workflow | Trigger                       | Purpose                     |
-| -------- | ----------------------------- | --------------------------- |
+| -------- | ------------------------------ | ----------------------------- |
 | Module 1 | Telegram message + 10 PM cron | Activity tracking + roasts  |
 | Module 2 | 8 AM IST daily                | Job opportunity digest      |
 | Module 3 | Telegram voice/text           | Anxiety to action converter |
@@ -213,10 +228,10 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    N[n8n HTTP Request] --> CW1[jugaad-internshaala-scraper\nCloudflare Worker]
-    N --> CW2[jugaad-freelance-scraper\nCloudflare Worker]
-    N --> CW3[jugaad-placement-scraper\nCloudflare Worker]
-    N --> CW4[jugaad-remote-scraper\nCloudflare Worker]
+    N[n8n HTTP Request] --> CW1[internshala_scrapper.js\nCloudflare Worker]
+    N --> CW2[freelance_scrapper.js\nCloudflare Worker]
+    N --> CW3[placement_scrapper.js\nCloudflare Worker]
+    N --> CW4[remote_scrapper.js\nCloudflare Worker]
     CW1 --> IS[Internshala HTML]
     CW2 --> RD[Reddit JSON API]
     CW3 --> UN[Unstop API]
@@ -279,7 +294,7 @@ erDiagram
 ### Supabase Functions
 
 | Function                                      | Purpose                                   |
-| --------------------------------------------- | ----------------------------------------- |
+| ----------------------------------------------- | -------------------------------------------- |
 | `increment_xp(p_chat_id, p_daily_xp, p_name)` | Upserts XP, increments totals             |
 | `update_rank(p_chat_id)`                      | Recalculates rank title based on total XP |
 | `reset_weekly_xp()`                           | Resets weekly XP every Sunday             |
@@ -297,10 +312,10 @@ Jugaad OS/
 │   └── Jugaad_OS_Module5.json       ← XP gamification
 │
 ├── Cloudflare Workers/
-│   ├── jugaad-internshaala-scraper.js
-│   ├── jugaad-freelance-scraper.js
-│   ├── jugaad-placement-scraper.js
-│   └── jugaad-remote-scraper.js
+│   ├── internshala_scrapper.js      ← Internshala internship scraper
+│   ├── freelance_scrapper.js        ← Reddit r/forhire freelance gig scraper
+│   ├── placement_scrapper.js        ← Unstop + JSearch placement scraper
+│   └── remote_scrapper.js           ← RemoteOK + JSearch + WeWorkRemotely scraper
 │
 └── Supabase/
     ├── schema.sql                    ← All table definitions
@@ -372,7 +387,14 @@ inside the Supabase SQL Editor.
 
 ### 6. Deploy Cloudflare Workers
 
-Deploy each scraper under the `cloudflare-workers/` directory through the Cloudflare dashboard or Wrangler.
+Deploy each scraper under the `cloudflare-workers/` directory through the Cloudflare dashboard or Wrangler:
+
+* `internshala_scrapper.js`
+* `freelance_scrapper.js`
+* `placement_scrapper.js`
+* `remote_scrapper.js`
+
+For `placement_scrapper.js` and `remote_scrapper.js`, replace the `{RAPID_API_KEY}` placeholder at the top of the file with your real RapidAPI key before deploying.
 
 ### 7. Import n8n Workflows
 
@@ -383,7 +405,7 @@ Import the workflow JSON files into n8n and configure the required credentials.
 ## Environment Variables
 
 | Variable               | Purpose                     |
-| ---------------------- | --------------------------- |
+| ------------------------ | ------------------------------ |
 | `TELEGRAM_BOT_TOKEN`   | Telegram bot authentication |
 | `GROQ_API_KEY`         | LLM and Whisper API access  |
 | `SUPABASE_URL`         | Supabase project URL        |
@@ -392,6 +414,8 @@ Import the workflow JSON files into n8n and configure the required credentials.
 | `GITHUB_TOKEN`         | GitHub API authentication   |
 | `WEBHOOK_URL`          | Public n8n webhook URL      |
 
+* **`RAPIDAPI_KEY`** — used by n8n for any direct JSearch calls, and must **also** be pasted into the `RAPIDAPI_KEY` constant inside `placement_scrapper.js` and `remote_scrapper.js` before deploying them to Cloudflare Workers, since Workers run independently and don't inherit n8n's environment variables.
+
 **Never commit real credentials to version control.**
 
 ---
@@ -399,7 +423,7 @@ Import the workflow JSON files into n8n and configure the required credentials.
 ## Bot Commands
 
 | Command                                    | Description                              |
-| ------------------------------------------ | ---------------------------------------- |
+| -------------------------------------------- | ------------------------------------------- |
 | `/start`                                   | Welcome message and onboarding           |
 | `/setup github_username leetcode_username` | Register profiles                        |
 | `/check`                                   | Check today's activity + receive a roast |
@@ -412,7 +436,7 @@ Voice notes and text messages are also supported for the **Anxiety to Action** m
 ## Scheduled Automations
 
 | Time               | Automation                       |
-| ------------------ | -------------------------------- |
+| -------------------- | ----------------------------------- |
 | 8:00 AM IST        | Job opportunity digest           |
 | 10:00 PM IST       | GitHub + LeetCode activity check |
 | 10:00 PM IST       | XP update                        |
@@ -470,7 +494,7 @@ Cloudflare Workers can be deployed through the Cloudflare dashboard or Wrangler 
 ## Troubleshooting
 
 | Issue                         | Solution                                               |
-| ----------------------------- | ------------------------------------------------------ |
+| -------------------------------- | ----------------------------------------------------------- |
 | Telegram webhook fails        | Ensure ngrok is running and `WEBHOOK_URL` is correct   |
 | GitHub returns empty activity | Check the GitHub username and API response             |
 | LeetCode user not found       | Verify the exact username                              |
@@ -582,8 +606,10 @@ MIT License — free to use, modify, and distribute.
 
 ---
 
-<div align="center" style="background-color: #000000; padding: 20px;">
-
+<table width="100%" bgcolor="#000000" style="background-color:#000000; border-collapse:collapse;">
+<tr>
+<td align="center" bgcolor="#000000" style="background-color:#000000; padding: 30px 0;">
 <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNDZocHozemJybHR2a2kzdnlmcXMxa2JmcnhtNWtjNnE0dm1kZjFncSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/LRyLOJUzbM9uRbZXy8/giphy.gif" alt="Jugaad Footer" width="65%" />
-
-</div>
+</td>
+</tr>
+</table>
