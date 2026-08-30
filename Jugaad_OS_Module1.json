@@ -1,0 +1,1763 @@
+{
+  "name": "Jugaad_OS_Module1",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "02786f21-9897-4c0d-92da-158187eabf9c",
+      "name": "Telegram Trigger",
+      "webhookId": "be66c2b9-8f2b-4c8c-8bc9-2198fcd807dd",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $input.first().json.message;\nconst text = msg.text || '';\nconst chatId = msg.chat.id;\nconst name = msg.from.first_name || 'Bhai';\nconst parts = text.trim().split(/\\s+/);\n\nif (!text.startsWith('/setup')) {\n  return [{ json: { valid: false, chatId, name, reply: \"❌ Use: /setup githubUsername leetcodeUsername\" } }];\n}\n\nif (parts.length < 3) {\n  return [{ json: { valid: false, chatId, name, reply: \"❌ Format: /setup githubUsername leetcodeUsername\\n\\nExample: /setup ANUBHAV-03042004 anubhav-kumar-srivastava-abb28b239\" } }];\n}\n\nreturn [{\n  json: {\n    valid: true,\n    chatId,\n    name,\n    github_user: parts[1],\n    leetcode_user: parts[2],\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        -176
+      ],
+      "id": "d978eda0-7e78-4e05-ae91-7a876c7b0f2b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f2d602a9-3112-48b1-ac24-cde67011efd3",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": "",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        688,
+        -176
+      ],
+      "id": "66ad1a54-24d5-4475-be23-96df297adddc",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/setup",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "id": "1cffd4d1-f4b2-42d8-8670-b5a11a4975de"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "setup"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4902e75e-caa7-4948-acb5-a0855d5dc074",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/check",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "check"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a25b95d1-89e9-48a0-89ee-eb9ab9169841",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "start"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f35b431f-d1f8-41ea-b526-472f71c6c097",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/stats",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "stats"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "9f886104-de37-472e-85e1-91beb0850459",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "tableId": "users",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "=chat_id",
+              "fieldValue": "={{ $json.chatId }}"
+            },
+            {
+              "fieldId": "=name",
+              "fieldValue": "={{ $json.name }}"
+            },
+            {
+              "fieldId": "=github_user",
+              "fieldValue": "={{ $json.github_user }}"
+            },
+            {
+              "fieldId": "=leetcode_user",
+              "fieldValue": "={{ $json.leetcode_user }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        -128
+      ],
+      "id": "41f447b5-470d-4474-8761-650f7d33ef5f",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "zYrWMEY2A2nVFgEh",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "=✅ Setup complete, {{ $json.name }}!\n🐙 GitHub: {{ $json.github_user }}\n⚡ LeetCode: {{ $json.leetcode_user }}        \nHar raat 10 PM ko teri class lunga 👀\n/check se abhi manual check kar! 😈",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        -112
+      ],
+      "id": "6b7dffa2-05f9-4f0d-aca7-ee096a8d4c81",
+      "name": "Send a text message",
+      "webhookId": "4109d87c-e1ce-49c1-afd0-7a9b493da26a",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $json.chatId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        928,
+        -224
+      ],
+      "id": "4709da4b-7e17-482a-badf-6ddda8768eb1",
+      "name": "Get a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "zYrWMEY2A2nVFgEh",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "574e0f0c-3743-4545-822f-e32369378208",
+              "leftValue": "={{ $json.chat_id }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1136,
+        -224
+      ],
+      "id": "cea2f5d9-6c58-4b81-bb94-2520a31f8190",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.chat_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "github_user",
+              "fieldValue": "={{ $('If').item.json.github_user }}"
+            },
+            {
+              "fieldId": "leetcode_user",
+              "fieldValue": "={{ $('If').item.json.leetcode_user }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        -288
+      ],
+      "id": "9270be82-3e88-4fe5-baad-299bbd8f938c",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "zYrWMEY2A2nVFgEh",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "=✅ Update complete, Anubhav Kumar! \n🐙 GitHub:{{ $json.github_user }}\n⚡️ LeetCode: {{ $json.leetcode_user }}\nHar raat 10 PM ko teri class lunga 👀\n/check se abhi manual check kar! 😈 ",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        -288
+      ],
+      "id": "5782f611-5833-4b60-ab85-eabbb9a1a04f",
+      "name": "Send a text message1",
+      "webhookId": "33b9da99-9764-48fa-ac23-6731bb685588",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message.from.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        784,
+        64
+      ],
+      "id": "bb2360d8-a696-42ca-a421-8f0103ef9ed4",
+      "name": "Get a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "zYrWMEY2A2nVFgEh",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const user = $input.first().json;\nconst chatId = $('Switch').item.json.message.chat.id;\n\nif (!user.chat_id) {\n  return [{\n    json: {\n      registered: false,\n      chatId,\n      reply: \"⚠️ Pehle setup kar bhai!\\n/setup githubUsername leetcodeUsername\"\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    registered: true,\n    chatId: user.chat_id,\n    name: user.name,\n    github_user: user.github_user,\n    leetcode_user: user.leetcode_user\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        64
+      ],
+      "id": "b4adc25a-92cf-4ee6-8562-5c73fc856397",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3a8697c6-0e19-40a4-a5e1-f4c83afa11e2",
+              "leftValue": "={{ $json.registered }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1232,
+        80
+      ],
+      "id": "0ef40135-00fc-4557-af71-970804721a60",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.reply }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1920,
+        224
+      ],
+      "id": "ef8a834f-bbac-405f-a6bd-c81aa47e50f8",
+      "name": "Send a text message2",
+      "webhookId": "4c961b9d-e929-410b-a823-0c913bfaaa76",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "🔍 Ruk bhai, teri jasoosi kar raha hoon... 👀",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1744,
+        64
+      ],
+      "id": "c01fd045-0a3c-4928-8e91-18fb3510de99",
+      "name": "Send a text message3",
+      "webhookId": "6a47916b-1dc1-455f-bc11-2cc256efc52c",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/users/{{ $('Code in JavaScript1').item.json.github_user }}/events/public?per_page=100",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "={{ $json.result.from.username }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1952,
+        64
+      ],
+      "id": "26363572-b27a-4644-984c-8aba24f26d97",
+      "name": "HTTP Request",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://leetcode.com/graphql",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"query($username:String!){matchedUser(username:$username){submitStats:submitStatsGlobal{acSubmissionNum{difficulty count}}userCalendar{streak totalActiveDays}}recentAcSubmissionList(username:$username,limit:20){title timestamp}}\",\n  \"variables\": {\n    \"username\": \"{{ $('Code in JavaScript1').item.json.leetcode_user }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2160,
+        64
+      ],
+      "id": "bc8f8970-5d0c-4bd5-ba41-201f41bc1eec",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get GitHub events directly from previous node\nconst githubEvents = $('HTTP Request').all();\n\n// Get LeetCode data directly\nconst leetcodeData = $('HTTP Request1').first().json.data;\n\nconst now = new Date();\nconst todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();\nconst weekStart = Date.now() - 7 * 24 * 60 * 60 * 1000;\n\nconst pushEvents = githubEvents.filter(e => e.json.type === 'PushEvent');\nconst todayCommits = pushEvents\n  .filter(e => new Date(e.json.created_at).getTime() >= todayStart)\n  .reduce((sum, e) => sum + (e.json.payload?.commits?.length || 1), 0);\nconst weekCommits = pushEvents\n  .filter(e => new Date(e.json.created_at).getTime() >= weekStart)\n  .reduce((sum, e) => sum + (e.json.payload?.commits?.length || 1), 0);\nconst recentRepo = pushEvents[0]?.json?.repo?.name?.split('/')[1] || 'None';\nconst lastActive = githubEvents[0]?.json?.created_at\n  ? new Date(githubEvents[0].json.created_at).toLocaleDateString('en-IN')\n  : 'Never';\n\nconst lc = leetcodeData.matchedUser;\nconst recentSubs = leetcodeData.recentAcSubmissionList || [];\nconst stats = lc.submitStats.acSubmissionNum;\nconst totalSolved = stats.find(s => s.difficulty === 'All')?.count || 0;\nconst easy = stats.find(s => s.difficulty === 'Easy')?.count || 0;\nconst medium = stats.find(s => s.difficulty === 'Medium')?.count || 0;\nconst hard = stats.find(s => s.difficulty === 'Hard')?.count || 0;\nconst streak = lc.userCalendar?.streak || 0;\n\nconst todayTimestamp = Math.floor(todayStart / 1000);\nconst solvedToday = recentSubs.filter(s => parseInt(s.timestamp) >= todayTimestamp).length;\nconst weekTimestamp = Math.floor(weekStart / 1000);\nconst solvedThisWeek = recentSubs.filter(s => parseInt(s.timestamp) >= weekTimestamp).length;\n\nconst isLazy = todayCommits === 0 && solvedToday === 0;\nconst xp = (todayCommits * 30) + (solvedToday * 50);\nconst chatId = $('Code in JavaScript1').first().json.chatId;\nconst name = $('Code in JavaScript1').first().json.name;\n\nreturn [{\n  json: {\n    chatId,\n    name,\n    github: { todayCommits, weekCommits, lastActive, recentRepo },\n    leetcode: { totalSolved, easy, medium, hard, solvedToday, solvedThisWeek, streak },\n    isLazy,\n    xp\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2368,
+        64
+      ],
+      "id": "bcb863de-4411-4e79-86a2-a3bd8dbe769b",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {GROQ_API_KEY}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-oss-120b\",\n  \"max_tokens\": 600,\n  \"temperature\": 0.9,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Jugaad OS — a brutally honest, funny desi best friend who roasts lazy Indian college students in Hinglish. Always respond ONLY in this exact JSON format with no extra text: {\\\"roast\\\":\\\"...\\\",\\\"microTask\\\":\\\"...\\\",\\\"story\\\":\\\"...\\\"}\"\n    },\n    {\n      \"role\": \"user\", \n      \"content\": \"={{ 'User: ' + $json.name + '. GitHub commits today: ' + $json.github.todayCommits + '. LeetCode solved today: ' + $json.leetcode.solvedToday + '. LeetCode streak: ' + $json.leetcode.streak + ' days. Total solved: ' + $json.leetcode.totalSolved + '. Last GitHub active: ' + $json.github.lastActive + '. Is lazy today: ' + $json.isLazy + '. Roast them hard in Hinglish if lazy, hype them if they worked!' }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2576,
+        64
+      ],
+      "id": "7e7289eb-4642-40a8-bf8c-f723ec27bda2",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const groqResponse = $input.first().json.choices[0].message.content;\nconst parsed = JSON.parse(groqResponse);\n\nconst chatId = $('Code in JavaScript2').first().json.chatId;\nconst data = $('Code in JavaScript2').first().json;\n\nconst githubEmoji = data.github.todayCommits > 0 ? '✅' : '❌';\nconst leetcodeEmoji = data.leetcode.solvedToday > 0 ? '✅' : '❌';\n\nconst summary = `📊 *Aaj ka Report Card*\n\n${githubEmoji} GitHub commits: ${data.github.todayCommits}\n${leetcodeEmoji} LeetCode solved: ${data.leetcode.solvedToday}\n⚡ LeetCode streak: ${data.leetcode.streak} days\n🏆 Total solved: ${data.leetcode.totalSolved}\n🎮 XP earned today: ${data.xp}`;\n\nreturn [{\n  json: {\n    chatId,\n    summary,\n    roast: parsed.roast,\n    microTask: parsed.microTask,\n    story: parsed.story\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2784,
+        64
+      ],
+      "id": "249f329a-1331-4a66-8b7d-628b084027fd",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $('Code in JavaScript3').item.json.summary }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3200,
+        64
+      ],
+      "id": "350be1cc-74c1-43f3-a869-f888fa850c38",
+      "name": "Send a text message4",
+      "webhookId": "a9b3a8ea-5f55-43d5-94d5-f0cbacaf9122",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript3').item.json.chatId }}",
+        "text": "={{ $('Code in JavaScript3').item.json.roast }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3408,
+        64
+      ],
+      "id": "cfd8241f-7a1e-4ea1-8eba-d6c7a4a4ef12",
+      "name": "Send a text message5",
+      "webhookId": "96902d08-159f-4deb-a9b3-e75b12a75c3d",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript3').item.json.chatId }}",
+        "text": "={{ $('Code in JavaScript3').item.json.microTask }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3616,
+        64
+      ],
+      "id": "75f66b66-7d58-48ea-9004-49721541f977",
+      "name": "Send a text message6",
+      "webhookId": "07001548-a664-48c0-a58c-fd52f9168778",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript3').item.json.chatId }}",
+        "text": "={{ $('Code in JavaScript3').item.json.story }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3824,
+        64
+      ],
+      "id": "a4dbf57e-c3bf-4a1d-ba5d-117d9c63af12",
+      "name": "Send a text message7",
+      "webhookId": "ecc224b3-25c2-46f5-a95f-9463b4a6e325",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "check_results",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "chat_id",
+              "fieldValue": "={{ $json.chatId }}"
+            },
+            {
+              "fieldId": "github_commits",
+              "fieldValue": "={{ $('Code in JavaScript2').item.json.github.todayCommits }}"
+            },
+            {
+              "fieldId": "lc_solved_today",
+              "fieldValue": "={{ $('Code in JavaScript2').item.json.leetcode.solvedToday }}"
+            },
+            {
+              "fieldId": "github_streak",
+              "fieldValue": "={{ $('Code in JavaScript2').item.json.github.weekCommits }}"
+            },
+            {
+              "fieldId": "lc_streak",
+              "fieldValue": "={{ $('Code in JavaScript2').item.json.leetcode.streak }}"
+            },
+            {
+              "fieldId": "roast",
+              "fieldValue": "={{ $json.roast }}"
+            },
+            {
+              "fieldId": "micro_task",
+              "fieldValue": "={{ $json.microTask }}"
+            },
+            {
+              "fieldId": "xp_earned",
+              "fieldValue": "={{ $('Code in JavaScript2').item.json.xp }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2992,
+        64
+      ],
+      "id": "50713af1-5e5a-4c92-a607-005edaa89da4",
+      "name": "Create a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "zYrWMEY2A2nVFgEh",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "=👋 Kem cho, {{ $json.message.from.first_name }}!\n🤖 Main hoon Jugaad OS!\n/setup githubUsername leetcodeUsername\n/check — Roast le 😂\n/stats — Teri stats dekh",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        272
+      ],
+      "id": "2bca4d4a-9a1a-4936-8510-d0c4e49ff52d",
+      "name": "Send a text message8",
+      "webhookId": "4ca0f61c-02cb-41d0-8dbc-3818da7ebd13",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $json.message.from.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        416,
+        496
+      ],
+      "id": "ae5b3f14-1159-4905-8bab-384f91059d1d",
+      "name": "Get a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "zYrWMEY2A2nVFgEh",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const user = $input.first().json;\nconst chatId = $('Switch').item.json.message.chat.id;\n\nif (!user.chat_id) {\n  return [{\n    json: {\n      registered: false,\n      chatId,\n      reply: \"⚠️ Pehle setup kar bhai!\\n/setup githubUsername leetcodeUsername\"\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    registered: true,\n    chatId: user.chat_id,\n    name: user.name,\n    github_user: user.github_user,\n    leetcode_user: user.leetcode_user\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        512
+      ],
+      "id": "a17b8119-01f9-4270-ae31-dad0ea6bf96b",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "14c82aa0-1d43-48a6-9405-5bb080028fab",
+              "leftValue": "={{ $json.registered }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        512
+      ],
+      "id": "b22f235f-be5d-4573-96b5-1b652f609733",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/users/{{ $json.github_user }}/events/public?per_page=100",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "JugaadOS-Bot"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1248,
+        592
+      ],
+      "id": "bcd11e47-e71b-479b-be47-64cfa8a7f335",
+      "name": "HTTP Request3",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://leetcode.com/graphql",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"query($username:String!){matchedUser(username:$username){submitStats:submitStatsGlobal{acSubmissionNum{difficulty count}}userCalendar{streak totalActiveDays}profile{ranking}}}\",\n  \"variables\": {\n    \"username\": \"{{ $('Code in JavaScript4').item.json.leetcode_user }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1456,
+        592
+      ],
+      "id": "be02652f-8893-4bd2-9312-9b0b65b0fb37",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const githubEvents = $('HTTP Request3').all();\nconst lcData = $input.first().json.data.matchedUser;\n\nconst now = new Date();\nconst todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();\nconst weekStart = Date.now() - 7 * 24 * 60 * 60 * 1000;\nconst monthStart = Date.now() - 30 * 24 * 60 * 60 * 1000;\n\nconst pushEvents = githubEvents.filter(e => e.json.type === 'PushEvent');\n\nconst todayCommits = pushEvents\n  .filter(e => new Date(e.json.created_at).getTime() >= todayStart)\n  .reduce((sum, e) => sum + (e.json.payload?.commits?.length || 1), 0);\n\nconst weekCommits = pushEvents\n  .filter(e => new Date(e.json.created_at).getTime() >= weekStart)\n  .reduce((sum, e) => sum + (e.json.payload?.commits?.length || 1), 0);\n\nconst monthCommits = pushEvents\n  .filter(e => new Date(e.json.created_at).getTime() >= monthStart)\n  .reduce((sum, e) => sum + (e.json.payload?.commits?.length || 1), 0);\n\nconst recentRepos = [...new Set(pushEvents.map(e => e.json.repo?.name?.split('/')[1]))].slice(0, 3).join(', ') || 'None';\n\nconst stats = lcData.submitStats.acSubmissionNum;\nconst totalSolved = stats.find(s => s.difficulty === 'All')?.count || 0;\nconst easy = stats.find(s => s.difficulty === 'Easy')?.count || 0;\nconst medium = stats.find(s => s.difficulty === 'Medium')?.count || 0;\nconst hard = stats.find(s => s.difficulty === 'Hard')?.count || 0;\nconst streak = lcData.userCalendar?.streak || 0;\nconst totalActiveDays = lcData.userCalendar?.totalActiveDays || 0;\nconst ranking = lcData.profile?.ranking || 'N/A';\n\nconst chatId = $('Code in JavaScript4').first().json.chatId;\nconst name = $('Code in JavaScript4').first().json.name;\n\nconst githubEmoji = todayCommits > 0 ? '🔥' : '😴';\nconst lcEmoji = streak > 0 ? '⚡' : '💀';\nreturn [{\n  json: {\n    chatId,\n    name,\n    statsData: {\n      todayCommits,\n      weekCommits,\n      monthCommits,\n      recentRepos,\n      totalSolved,\n      easy,\n      medium,\n      hard,\n      streak,\n      totalActiveDays,\n      ranking\n    },\n    statsMessage: `📈 *${name} ka Stats Report*\n\n🐙 *GitHub*\n${githubEmoji} Aaj: ${todayCommits} commits\n📅 Is hafte: ${weekCommits} commits  \n🗓️ Is mahine: ${monthCommits} commits\n📁 Recent repos: ${recentRepos}\n\n⚡ *LeetCode*\n${lcEmoji} Streak: ${streak} days\n🏆 Total solved: ${totalSolved}\n🟢 Easy: ${easy} | 🟡 Medium: ${medium} | 🔴 Hard: ${hard}\n📊 Active days: ${totalActiveDays}\n🌍 Global rank: ${ranking}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        592
+      ],
+      "id": "8558dd17-b8fd-4007-9f99-c61c4a2988ae",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript5').item.json.chatId }}",
+        "text": "={{ $('Code in JavaScript5').item.json.statsMessage + '\\n\\n🎮 *Overall Vibe*\\n' + $input.first().json.choices[0].message.content }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2080,
+        592
+      ],
+      "id": "ad6c9945-588b-4f84-9451-7ba1bab02a80",
+      "name": "Send a text message9",
+      "webhookId": "62cfaaa1-44fb-4627-bdac-54b2b568a74e",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {GROQ_API_KEY}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-oss-120b\",\n  \"max_tokens\": 150,\n  \"temperature\": 0.9,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Jugaad OS — brutal, funny, desi best friend. Give a 2-3 line overall vibe assessment in Hinglish based on the stats. Be savage but motivating. Return ONLY the vibe text, no JSON, no formatting.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ 'Name: ' + $json.name + '. LeetCode total: ' + $json.statsData.totalSolved + ' (' + $json.statsData.easy + ' easy, ' + $json.statsData.medium + ' medium, ' + $json.statsData.hard + ' hard). Streak: ' + $json.statsData.streak + ' days. GitHub this week: ' + $json.statsData.weekCommits + ' commits. Global rank: ' + $json.statsData.ranking + '. Give overall vibe!' }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1872,
+        592
+      ],
+      "id": "fc5a8414-5b24-4be7-b14f-1fd3d0c8d814",
+      "name": "HTTP Request5"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -112,
+        1760
+      ],
+      "id": "8626db6e-ad40-4145-bfb6-e70a75168666",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "users"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        96,
+        1760
+      ],
+      "id": "fad43a30-8540-463e-b8bf-a79b14ecf38d",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "zYrWMEY2A2nVFgEh",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        304,
+        1760
+      ],
+      "id": "27e3bcbc-d0da-46a8-868c-57ad4acd3562",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/users/{{ $json.github_user }}/events/public?per_page=100",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "JugaadOS-Bot"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        512,
+        1856
+      ],
+      "id": "0deabb2c-8030-48b9-a54d-1cc964166dce",
+      "name": "HTTP Request6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://leetcode.com/graphql",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"query($username:String!){matchedUser(username:$username){submitStats:submitStatsGlobal{acSubmissionNum{difficulty count}}userCalendar{streak totalActiveDays}}recentAcSubmissionList(username:$username,limit:20){title timestamp}}\",\n  \"variables\": { \"username\": \"{{ $('Loop Over Items').item.json.leetcode_user }}\" }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        720,
+        1856
+      ],
+      "id": "24d84429-7cb9-4c52-aa02-68104d73f1c7",
+      "name": "HTTP Request7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const githubEvents = $('HTTP Request6').all();\nconst lcData = $('HTTP Request7').first().json.data;\nconst user = $('Loop Over Items').item.json;\n\nconst now = new Date();\nconst todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();\nconst weekStart = Date.now() - 7 * 24 * 60 * 60 * 1000;\n\nconst pushEvents = githubEvents.filter(e => e.json.type === 'PushEvent');\nconst todayCommits = pushEvents\n  .filter(e => new Date(e.json.created_at).getTime() >= todayStart)\n  .reduce((sum, e) => sum + (e.json.payload?.commits?.length || 1), 0);\nconst weekCommits = pushEvents\n  .filter(e => new Date(e.json.created_at).getTime() >= weekStart)\n  .reduce((sum, e) => sum + (e.json.payload?.commits?.length || 1), 0);\n\nconst stats = lcData.matchedUser.submitStats.acSubmissionNum;\nconst recentSubs = lcData.recentAcSubmissionList || [];\nconst totalSolved = stats.find(s => s.difficulty === 'All')?.count || 0;\nconst easy = stats.find(s => s.difficulty === 'Easy')?.count || 0;\nconst medium = stats.find(s => s.difficulty === 'Medium')?.count || 0;\nconst hard = stats.find(s => s.difficulty === 'Hard')?.count || 0;\nconst streak = lcData.matchedUser.userCalendar?.streak || 0;\n\nconst todayTimestamp = Math.floor(todayStart / 1000);\nconst solvedToday = recentSubs.filter(s => parseInt(s.timestamp) >= todayTimestamp).length;\nconst isLazy = todayCommits === 0 && solvedToday === 0;\nconst xp = (todayCommits * 30) + (solvedToday * 50);\n\nreturn [{\n  json: {\n    chatId: user.chat_id,\n    name: user.name,\n    github: { todayCommits, weekCommits },\n    leetcode: { totalSolved, easy, medium, hard, solvedToday, streak },\n    isLazy,\n    xp\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        928,
+        1856
+      ],
+      "id": "73331dad-06a9-4372-98a7-ded4c7cade3f",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {GROQ_API_KEY}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-oss-120b\",\n  \"max_tokens\": 600,\n  \"temperature\": 0.9,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Jugaad OS — brutal, funny desi best friend. Roast lazy Indian college students in Hinglish. Respond ONLY in JSON: {\\\"roast\\\":\\\"...\\\",\\\"microTask\\\":\\\"...\\\",\\\"story\\\":\\\"...\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ 'User: ' + $json.name + '. GitHub commits today: ' + $json.github.todayCommits + '. LeetCode solved today: ' + $json.leetcode.solvedToday + '. Streak: ' + $json.leetcode.streak + '. isLazy: ' + $json.isLazy }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1136,
+        1856
+      ],
+      "id": "90e15f4f-c1c7-499f-ac3b-5607670eb0f4",
+      "name": "HTTP Request8"
+    },
+    {
+      "parameters": {
+        "jsCode": "const groq = JSON.parse($input.first().json.choices[0].message.content);\nconst data = $('Code in JavaScript6').first().json;\nconst githubEmoji = data.github.todayCommits > 0 ? '✅' : '❌';\nconst lcEmoji = data.leetcode.solvedToday > 0 ? '✅' : '❌';\n\nreturn [{\n  json: {\n    chatId: data.chatId,\n    summary: `🕙 *10 PM Check-in, ${data.name}!*\\n\\n${githubEmoji} GitHub commits: ${data.github.todayCommits}\\n${lcEmoji} LeetCode solved: ${data.leetcode.solvedToday}\\n⚡ Streak: ${data.leetcode.streak} days\\n🎮 XP today: ${data.xp}`,\n    roast: groq.roast,\n    microTask: groq.microTask,\n    story: groq.story\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        1856
+      ],
+      "id": "2f5c6d5b-568c-4a33-ae64-91ba6bb5acbb",
+      "name": "Code in JavaScript7"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $('Code in JavaScript7').item.json.summary }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1584,
+        1856
+      ],
+      "id": "3fa6e334-8663-4cd1-bc77-8f1024d383e6",
+      "name": "Send a text message10",
+      "webhookId": "a9b3a8ea-5f55-43d5-94d5-f0cbacaf9122",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript7').item.json.chatId }}",
+        "text": "={{ $('Code in JavaScript7').item.json.roast }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1792,
+        1856
+      ],
+      "id": "4a0c58da-713a-4273-b9a8-40fdf31f43f2",
+      "name": "Send a text message11",
+      "webhookId": "96902d08-159f-4deb-a9b3-e75b12a75c3d",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript7').item.json.chatId }}",
+        "text": "={{ $('Code in JavaScript7').item.json.microTask }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2000,
+        1856
+      ],
+      "id": "fe4439b5-969a-4ed2-9113-63982442f3c1",
+      "name": "Send a text message12",
+      "webhookId": "07001548-a664-48c0-a58c-fd52f9168778",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript7').item.json.chatId }}",
+        "text": "={{ $('Code in JavaScript7').item.json.story }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2208,
+        1856
+      ],
+      "id": "60311ffb-676e-48d7-bb05-bb72a0c7542c",
+      "name": "Send a text message13",
+      "webhookId": "ecc224b3-25c2-46f5-a95f-9463b4a6e325",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.reply }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        896,
+        -80
+      ],
+      "id": "ac75b003-dccf-4209-9047-80c71b68a65e",
+      "name": "Send a text message14",
+      "webhookId": "527ad231-462f-430f-a6e4-1317e40518c7",
+      "credentials": {
+        "telegramApi": {
+          "id": "PRs4Z5S7mkhydrjH",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a row1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message4": {
+      "main": [
+        [
+          {
+            "node": "Send a text message5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message5": {
+      "main": [
+        [
+          {
+            "node": "Send a text message6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message6": {
+      "main": [
+        [
+          {
+            "node": "Send a text message7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Send a text message9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request7": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request8": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        [
+          {
+            "node": "Send a text message10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message10": {
+      "main": [
+        [
+          {
+            "node": "Send a text message11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message11": {
+      "main": [
+        [
+          {
+            "node": "Send a text message12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message12": {
+      "main": [
+        [
+          {
+            "node": "Send a text message13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message13": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4074884e-4c1e-4b7b-a5ee-502d103657a6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "168d5ee5d477982a9ac759339ef179c7ee2891c89f99225aa60fd40e71d93a4f"
+  },
+  "id": "3qKEJDxLqKEAe35f",
+  "tags": []
+}
