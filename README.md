@@ -606,10 +606,7 @@ MIT License — free to use, modify, and distribute.
 
 ---
 
-<table width="100%" bgcolor="#000000" style="background-color:#000000; border-collapse:collapse;">
-<tr>
-<td align="center">
-<img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnlsd2lxcm5yeGJycW91YWJ3eWtha2YwZ3B6b3l0dnI5YTllbHQ1OSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/f7FpIqUFDNKotzpIBt/giphy.gif" alt="Jugaad Footer" width="65%" />
-</td>
-</tr>
-</table>
+
+<div align="center">
+<img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnlsd2lxcm5yeGJycW91YWJ3eWtha2YwZ3B6b3l0dnI5YTllbHQ1OSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9dHM/jOPGfHbWYRabmbCtw2/giphy.gif" alt="Jugaad Footer" width="65%" />
+</div>
